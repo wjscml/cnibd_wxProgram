@@ -1,0 +1,30 @@
+<template>
+  <view class="news-column">
+    <view class="news-item" wx:for="{{news}}" wx:key="{{index}}">
+      <navigator url="/pages/newsDetails?article_id={{item.id}}&title={{item.title}}" class="item-image">
+        <image src="{{item.thumb}}" class="image"></image>
+      </navigator>
+      <navigator url="/pages/newsDetails?article_id={{item.id}}&title={{item.title}}" class="item-txt">
+        <text class="title">{{item.title}}</text>
+        <view class="info">
+          <text class="author">{{item.author_name}} · </text>
+          <text class="time">{{item.publish_time}}</text>
+        </view>
+      </navigator>
+    </view>
+
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class Counter extends wepy.component {
+  props = {
+    news: Array
+  }
+}
+</script>
+<style lang="stylus" rel="stylesheet/stylus">
+@import "../common/stylus/mixin.styl"
+
+</style>

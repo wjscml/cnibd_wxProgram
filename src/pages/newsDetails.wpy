@@ -1,0 +1,36 @@
+<template>
+  <view class="page-body">
+    <view class="page-section page-section-gap">
+      <web-view src="https://h5.cnibd.com/miniprogram/{{article_id}}#wechat_redirect"></web-view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+
+export default class Index extends wepy.page {
+  data = {
+    article_id: Number,
+    article_title: String
+  }
+  onLoad (options) {
+    this.article_title = options.title
+    this.article_id = options.article_id
+    this.$apply()
+  }
+  onShareAppMessage () {
+    return {
+      title: this.article_title,
+      path: `/pages/newsDetails?article_id=${this.article_id}`
+    }
+  }
+}
+</script>
+
+<style lang="stylus">
+.article
+  padding: 0 1rem;
+  background-color: #fff
+
+</style>

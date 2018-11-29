@@ -1,0 +1,90 @@
+<template>
+  <view id="app">
+    <view class="app-content">
+      <header :currentTab="currentTab"></header>
+      <rich-text nodes="{{about}}">
+      </rich-text>
+    </view>
+    <footer class="app-footer"></footer>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import Header from '../components/header'
+  import Footer from '../components/footer'
+  import {htmlDecode} from '../common/js/htmlUtil.js'
+
+  const ERR_OK = 0
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '关于我们'
+    }
+    components = {
+      header: Header,
+      footer: Footer
+    }
+    data = {
+      currentTab: 1,
+      about: String
+    }
+    getAbout () {
+      wepy.showLoading({
+        title: '加载中'
+      })
+      wepy.request('https://www.cnibd.com/h5/about').then(res => {
+        if (res.data.errorCode === ERR_OK) {
+          this.about = htmlDecode(res.data.data.content)
+          this.$apply()
+          wepy.hideLoading()
+        }
+      }).catch(error => {
+        if (!error.res) {
+          this.about = '<div class="about-content"><p class="p-text">网络不给力，请稍后重试</p></div>'
+          this.$apply()
+          wepy.hideLoading()
+        }
+      })
+    }
+    onLoad () {
+      this.getAbout()
+    }
+    onShareAppMessage () {
+      return {
+        title: '赛恩财经--关于',
+        path: '/pages/about'
+      }
+    }
+  }
+</script>
+
+<style lang="stylus">
+@import "../common/stylus/index.styl"
+#app
+  display flex
+  flex-direction column
+  justify-content space-between
+  min-height 100%
+  box-sizing: border-box
+  .app-content
+    flex-grow 1
+    .about-content
+      padding 2.4rem 1.2rem
+      background-color #fff
+      .p-text
+        margin-bottom 0.8rem
+        line-height 1.4rem
+        font-size 0.9rem
+        color #393a4c
+        &:nth-last-child(1)
+          margin-bottom 0
+        &.title
+          padding-left 0.42rem
+          margin-bottom 1.2rem
+          border-left 2px solid #1f8bee
+          line-height 1rem
+          font-size 1rem
+          font-weight 600
+          &.contactWrapper
+            margin-top 2rem
+</style>

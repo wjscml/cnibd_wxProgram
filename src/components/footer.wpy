@@ -1,0 +1,25 @@
+<style lang="stylus" rel="stylesheet/stylus">
+.footer
+  height 2.4rem
+  padding 0.7rem 0
+  background-color #f2f2f2
+  .footer-txt
+    display block
+    line-height 1.2rem
+    font-size 0.7rem
+    text-align center
+    color #999
+</style>
+<template>
+  <view class="footer">
+    <text class="footer-txt">Copyright © 赛恩财经 版权所有</text>
+    <text class="footer-txt">鲁ICP证：17050841号-1</text>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class Counter extends wepy.component {
+
+}
+</script>

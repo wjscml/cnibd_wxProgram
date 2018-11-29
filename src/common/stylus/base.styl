@@ -1,0 +1,189 @@
+body, dl, dd,
+ul, ol,
+h1, h2, h3, h4, h5, h6, pre,
+form, fieldset, legend, input, textarea, optgroup,
+p, blockquote, figure, hr, menu, dir,
+thead, tbody, tfoot, th, td {
+  margin: 0;
+  padding: 0;
+}
+
+/**
+* 非大面积文字排版网站通常不需要列表项，如果需要可单独设置
+*/
+ul, ol {
+  list-style-type: none;
+  list-style-image: none;
+}
+
+/* ==========================================================================
+ 链接
+ ========================================================================== */
+/**
+* 1. 去除链接默认的下划线，提高文字可读性
+* 2. 去掉 IE 10+ 点击链接时的灰色背景
+*/
+a {
+  color: inherit;
+  text-decoration: none;
+  /* 1 */
+  background-color: transparent;
+  /* 2 */
+}
+
+/**
+* 去掉点击时的焦点框，同时保证使用键盘可以显示焦点框
+*/
+a:active,
+a:hover {
+  outline-width: 0;
+}
+
+/**
+* 统一 Chrome 和 Safari 的焦点框样式
+* Chrome 中 thin 关键字放大页面后焦点框不会放大 http://jsbin.com/ehakom/1
+* Firefox 中 box-shadow 会导致焦点框位置偏移，需用「outline-offset」修正
+*
+*/
+a:focus {
+  outline: 1px dotted;
+}
+
+/* ==========================================================================
+ 字体和基础排版
+ ========================================================================== */
+/**
+* 1.防止 iOS 横屏字号放大，同时保证在PC上 zoom 功能正常
+*/
+html {
+  -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+          text-size-adjust: 100%;
+  /* 1 */
+  font-size: 62.5%;
+  /* 10/16=62.5% */
+}
+
+body {
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+/**
+* 所有 font-family 小写，存在空格的字体名加单引号
+* @default-font: 'helvetica neue', tahoma, \5B8B\4F53, sans-serif;
+* @heading-font: 'helvetica neue', tahoma, 'hiragino sans gb', stheiti,
+  \5FAE\8F6F\96C5\9ED1, \5B8B\4F53, 'wenquanyi micro hei', sans-serif;
+* @code-font: monaco, menlo, consolas, monospace;
+*/
+/**
+* 中文优先使用冬青黑体简体(OS X)、微软雅黑(Windows)和文泉驿微米黑(Linux)
+* 西文使用 tahoma
+* 1. 防止元素中「font-family」不能继承
+* 2. 西文字体和 OS X 字体写在前面
+* 3. Opera 12.1 之前版本不支持中文字体的英文名称
+* 4. 微软雅黑「\5FAE\8F6F\96C5\9ED1」,中易宋体「\5B8B\4F53」
+*/
+body,
+button,
+input,
+select,
+textarea {
+  font-family: 'helvetica neue', arial, 'hiragino sans gb', stheiti, 'wenquanyi micro hei', \5FAE\8F6F\96C5\9ED1, \5B8B\4F53, sans-serif;
+  -ms-text-autospace: ideograph-alpha ideograph-numeric ideograph-parenthesis;
+  /* 5 */
+  text-spacing: ideograph-alpha ideograph-numeric ideograph-parenthesis;
+  /* 5 */
+}
+
+/**
+* 中文小于 12px 可读性很差
+* 1. 统一 IE 6-7 中字体大小
+* 2. 统一 Firefox 4+，Safari 5 和 Chrome 中「section」和「article」内的字体大小
+*/
+h1, h2, h3, h4, h5, h6 {
+  font-weight: normal;
+}
+
+h1 {
+  font-size: 36px;
+}
+
+h2 {
+  font-size: 30px;
+}
+
+h3 {
+  font-size: 22px;
+}
+
+h4 {
+  font-size: 18px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  font-size: 12px;
+}
+
+/**
+* 修正「abbr」元素在 Firefox 外其他浏览器没有下划线的问题
+* 添加问号光标，明确语义
+*/
+abbr,
+acronym {
+  border-bottom: 1px dotted;
+  /* 1 */
+  cursor: help;
+  /* 2 */
+}
+
+/**
+* Firefox3+，Safari4/5 和 Chrome 中统一设置为粗体
+*/
+b,
+strong {
+  font-weight: bold;
+}
+
+/**
+* 修正 Safari5 和 Chrome 中没有样式的问题
+*/
+dfn {
+  font-style: italic;
+}
+
+/**
+* 修正 Firefox 和其他浏览器之间的差异
+*/
+hr {
+  -webkit-box-sizing: content-box;
+          box-sizing: content-box;
+  height: 0;
+}
+
+
+.clearfix
+  display: inline-block
+  &:after
+    display block
+    content: ''
+    height 0
+    line-height: 0
+    clear both
+    visibility hidden
+
+@media (-webkit-min-device-pixel-ratio: 1.5),(min-device-pixel-ratio: 1.5)
+  .border-1px
+  &::after
+    -webkit-transform: scaleY(0.7)
+    transform: scaleY(0.7)
+
+@media (-webkit-min-device-pixel-ratio: 2),(min-device-pixel-ratio: 2)
+  .border-1px
+  &::after
+    -webkit-transform: scaleY(0.5)
+    transform: scaleY(0.5)

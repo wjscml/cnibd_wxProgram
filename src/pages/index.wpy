@@ -1,0 +1,338 @@
+<template>
+  <view id="app">
+    <view class="app-content">
+      <header :currentTab="currentTab"></header>
+      <swiper wx:if="{{slider.length}}" class="slider" autoplay="{{true}}" circular interval="{{5000}}" duration="{{1000}}">
+        <block wx:for="{{slider}}" wx:key="{{index}}">
+          <navigator url="/pages/newsDetails?article_id={{item.id}}&title={{item.title}}">
+            <swiper-item class="slider-item">
+              <image src="{{item.thumb}}" class="slider-image"/>
+              <text class="slider-info">{{item.title}}</text>
+            </swiper-item>
+          </navigator>
+        </block>
+      </swiper>
+      <view bindtouchmove="handletouchmove">
+        <view class="'newsNav-wrapper' {{isFixed ? 'isFixed' : ''}}" wx:if="{{newsNav.length}}">
+          <scroll-view class="newsNavBar" scroll-x scroll-into-view="{{toView}}">
+            <view class="newsNav-item" wx:for="{{newsNav}}" wx:key="{{index}}" data-num="{{item.id}}" bindtap="changeTab" id="n{{item.id}}">
+              <text class="name" :class="{'name-s': item.id==type}" >{{item.name}}</text>
+            </view>
+          </scroll-view>
+        </view>
+        <view class="'news-wrapper' {{isFixed ? 'isFixed' : ''}}">
+          <swiper class="newsBox" style="height:calc({{news.length * 6}}rem)" current="{{type}}" skip-hidden-item-layout="{{true}}" bindchange="change" wx:if="{{news.length}}">
+            <block wx:for="{{newsNav}}" wx:key="{{index}}" hidden="{{item.id===type ? false : true}}">
+              <swiper-item>
+                <newsColumn :news.sync="news"></newsColumn>
+              </swiper-item>
+            </block>
+          </swiper>
+          <view class="bottom-tip">
+            <image class="loading-image" src="../common/image/loading.png" hidden="{{!isLoad}}"></image>
+            <text class="loading-hook">{{tips}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <footer class="app-footer"></footer>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import Header from '../components/header'
+  import Footer from '../components/footer'
+  import NewsColumn from '../components/newsColumn'
+
+  const ERR_OK = 0
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '赛恩财经',
+      enablePullDownRefresh: true
+    }
+    components = {
+      header: Header,
+      footer: Footer,
+      newsColumn: NewsColumn
+    }
+
+    data = {
+      currentTab: 0,
+      slider: [],
+      newsNav: [],
+      toView: 'n0',
+      news: [],
+      scrollTop: 0,
+      newsTop: 269,
+      type: 0,
+      page: 0,
+      isLoad: false,
+      isFixed: null,
+      tips: '上滑加载更多'
+    }
+
+    getSlider () {
+      wepy.request('https://www.cnibd.com/h5/slide').then(res => {
+        if (res.data.errorCode === ERR_OK) {
+          this.slider = res.data.data
+          this.$apply()
+        }
+      })
+    }
+
+    getNewsNav () {
+      wepy.request('https://www.cnibd.com/h5/categories').then(res => {
+        if (res.data.errorCode === ERR_OK) {
+          this.newsNav = res.data.data
+          this.$apply()
+        }
+      })
+    }
+
+    getNews () {
+      wepy.showLoading({
+        title: '加载中'
+      })
+      wepy.request(`https://www.cnibd.com/h5/list?page=0&type=${this.type}`).then(res => {
+        if (res.data.errorCode === ERR_OK) {
+          this.news = res.data.data
+          this.$apply()
+          wepy.hideLoading()
+        } else {
+          this.news = []
+          this.tips = '暂无数据'
+          this.$apply()
+          wepy.hideLoading()
+        }
+      }).catch(error => {
+        if (!error.res) {
+          this.news = []
+          this.tips = '网络不给力，请稍后重试'
+          this.$apply()
+          wepy.hideLoading()
+        }
+      })
+    }
+
+    changeTab (i) {
+      this.type = i.currentTarget.dataset.num
+      this.$apply()
+    }
+
+    change (i) {
+      if (i.detail.source === 'touch') {
+        this.type = i.detail.current
+        this.$apply()
+      } else {
+        return false
+      }
+      console.log(i.detail.source)
+    }
+
+    onPageScroll (e) {
+      this.scrollTop = e.scrollTop
+      this.$apply()
+      if (e.scrollTop >= this.newsTop) {
+        this.isFixed = true
+        this.$apply()
+      } else {
+        this.isFixed = false
+        this.$apply()
+      }
+    }
+
+    handletouchmove (e) {
+      this.newsTop = e.currentTarget.offsetTop
+      this.$apply()
+    }
+
+    onPullDownRefresh () {
+      this.getSlider()
+      this.getNewsNav()
+      this.getNews()
+      wepy.stopPullDownRefresh()
+    }
+
+    onReachBottom () {
+      this.page++
+      wepy.request(`https://www.cnibd.com/h5/list?page=${this.page}&type=${this.type}`).then((res) => {
+        if (res.data.errorCode === ERR_OK) {
+          this.news = this.news.concat(res.data.data)
+          this.tips = '正在加载'
+          this.isLoad = true
+          this.$apply()
+        } else {
+          this.tips = '没有更多数据了~'
+          this.isLoad = false
+          this.$apply()
+        }
+      }).catch(error => {
+        if (!error.res) {
+          this.tips = '网络不给力，请稍后重试'
+          this.isLoad = false
+          this.$apply()
+        }
+      })
+    }
+
+    watch = {
+      type () {
+        this.getNews()
+        if (this.scrollTop >= this.newsTop) {
+          wepy.pageScrollTo({
+            scrollTop: this.newsTop,
+            duration: 0
+          })
+        }
+        this.toView = 'n' + this.type
+      },
+      isFixed () {}
+    }
+
+    onLoad () {
+      this.getSlider()
+      this.getNewsNav()
+      this.getNews()
+    }
+
+    onShareAppMessage () {
+      return {
+        title: '赛恩财经',
+        path: '/pages/index'
+      }
+    }
+  }
+</script>
+
+<style lang="stylus">
+@import "../common/stylus/index.styl"
+#app
+  display flex
+  flex-direction column
+  justify-content space-between
+  min-height 100%
+  box-sizing: border-box
+  .app-content
+    flex-grow 1
+    .slider
+      min-height 1px
+      overflow hidden
+      height 11rem
+      margin-bottom 0.36rem
+      .slider-item
+        position relative
+        .slider-image
+          width 100%
+          height 11rem
+        .slider-info
+          overflow hidden
+          box-sizing border-box
+          position absolute
+          bottom 0
+          left 0
+          width 100%
+          padding 0 1.2rem
+          line-height 1.8rem
+          font-size 0.96rem
+          background-color rgba(0,0,0,0.5)
+          color #fff
+          text-align center
+          white-space nowrap
+          text-overflow ellipsis
+    .newsNav-wrapper
+      width 100%
+      overflow hidden
+      border-1px(rgba(7,17,27,0.1))
+      background-color #fff
+      .newsNavBar
+        display flex
+        width 100%
+        white-space nowrap
+        .newsNav-item
+          display inline-block
+          .name
+            display inline-block
+            line-height 0.96rem
+            height 0.96rem
+            font-size 0.96rem
+            padding 0.84rem 1.2rem
+            border-bottom 1px solid #fff
+            &.name-s
+              border-color #1f8bee
+              color #1f8bee
+      &.isFixed
+        position fixed
+        top 0
+        background-color #fff
+        z-index 999
+    .news-wrapper
+      overflow hidden
+      background-color #fff
+      &.isFixed
+        padding-top 2.64rem
+      .newsBox
+        width 100%
+        .news-column
+          box-sizing border-box
+          padding 0 1.2rem
+          background-color #fff
+          .news-item
+            display flex
+            padding 1rem 0
+            border-1px(rgba(7,17,27,0.1))
+            font-size 0
+            .item-image
+              flex-shrink 0
+              .image
+                width 6rem
+                height 4rem
+            .item-txt
+              margin-left 1rem
+              .title
+                margin-bottom 0.4rem
+                line-height 1.4rem
+                font-size 1rem
+                font-weight 600
+                color #393a4c
+                overflow hidden
+                white-space normal
+                display -webkit-box
+                -webkit-line-clamp 2
+                text-overflow ellipsis
+                -webkit-box-orient vertical
+                height 2.8rem
+              .info
+                line-height 0.8rem
+                height 0.8rem
+                color #999
+                .author
+                .time
+                  font-size 0.8rem
+      .bottom-tip
+        height 2.4rem
+        line-height 2.4rem
+        font-size 0.72rem
+        text-align center
+        .loading-hook
+          display inline-block
+          vertical-align middle
+          color #757575
+        .loading-image
+          vertical-align middle
+          margin-right 4px
+          width 0.72rem
+          height 0.72rem
+          -webkit-animation: loadingRotate .4s linear infinite forwards
+          animation: loadingRotate .4s linear infinite forwards
+          @-webkit-keyframes loadingRotate
+            0%
+              -webkit-transform: rotate(0) translateZ(0)
+              transform: rotate(0) translateZ(0)
+            50%
+              -webkit-transform: rotate(180deg) translateZ(0)
+              transform: rotate(180deg) translateZ(0)
+            100%
+              -webkit-transform: rotate(360deg) translateZ(0)
+              transform: rotate(360deg) translateZ(0)
+</style>
