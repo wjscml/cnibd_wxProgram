@@ -1,1 +1,37 @@
+<style>
+page{
+  height: 100%
+}
+</style>
 
+<script>
+import wepy from 'wepy'
+import 'wepy-async-function'
+
+import { setStore } from 'wepy-redux'
+import configStore from './store'
+
+const store = configStore()
+setStore(store)
+
+export default class extends wepy.app {
+  config = {
+    pages: [
+      'pages/index',
+      'pages/about',
+      'pages/newsDetail',
+      'pages/newsDetails'
+    ],
+    window: {
+      backgroundTextStyle: 'dack',
+      navigationBarBackgroundColor: '#fff',
+      navigationBarTitleText: 'WeChat',
+      navigationBarTextStyle: 'black'
+    }
+  }
+  constructor () {
+    super()
+    this.use('promisify')
+  }
+}
+</script>
