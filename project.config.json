@@ -1,0 +1,15 @@
+{
+	"description": "A WePY project",
+	"setting": {
+		"urlCheck": true,
+		"es6": false,
+		"postcss": false,
+		"minified": false,
+		"newFeature": true
+	},
+	"compileType": "miniprogram",
+	"appid": "wx7908a24a92f08643",
+	"projectname": "cnibd_program",
+	"miniprogramRoot": "./dist",
+	"condition": {}
+}
